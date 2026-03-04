@@ -54,8 +54,8 @@ const DoctorList = () => {
 
               <input
                 type="checkbox"
-                onClick={()=>{changeAvailability(item._id)}}
-                defaultChecked={item.available}
+                checked={item.available}
+                onChange={() => changeAvailability(item._id)}
                 className="cursor-pointer accent-indigo-600"
               />
 
