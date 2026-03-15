@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect,useContext } from 'react'
 import { assets } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext'
 
 const Navbar = () => {
+  const {token,setToken,userData,setUserData} = useContext(AppContext)
   const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(false)
-  const [token, setToken] = useState(true)
   const [openProfile, setOpenProfile] = useState(false)
   const profileRef = useRef(null)
 
@@ -19,6 +20,12 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const logOut = () =>{
+    setToken(false)
+    localStorage.removeItem("token")
+  }
+  
 
   const navLinks = [
     { to: '/', label: 'HOME' },
@@ -59,7 +66,7 @@ const Navbar = () => {
 
       {/* Right Side */}
       <div className='flex items-center gap-3'>
-        {token ? (
+        {token && userData ? (
           <>
             {/* Profile (desktop + mobile click) */}
             <div ref={profileRef} className="relative flex items-center gap-2 cursor-pointer">
@@ -69,7 +76,7 @@ const Navbar = () => {
               >
                 <img
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/30"
-                  src={assets.profile_pic}
+                  src={userData.image}
                   alt="profile"
                 />
                 <img
@@ -96,7 +103,7 @@ const Navbar = () => {
                   </p>
                   <div className="border-t mt-1">
                     <p
-                      onClick={() => { setToken(false); setOpenProfile(false) }}
+                      onClick={() => { logOut(); setOpenProfile(false) }}
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 text-red-500 transition cursor-pointer mt-1"
                     >
                       🚪 Log Out
