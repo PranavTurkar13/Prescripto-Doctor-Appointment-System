@@ -16,7 +16,7 @@ connectCloudinary()
 //middlewares
 
 const allowedOrigins = [
-    "https://better-uptime-eight.vercel.app",
+    "https://prescripto-doctor-appointment-syste.vercel.app/",
     "http://localhost:3000",
   ];
 
