@@ -1,0 +1,11 @@
+# Check if .gitignore exists at root
+cat .gitignore
+```
+
+It should contain:
+```
+**/.env
+.env
+backend/.env
+frontend/.env
+admin/.env
