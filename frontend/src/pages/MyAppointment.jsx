@@ -42,11 +42,24 @@ const MyAppointment = () => {
     }
   }
 
-  useEffect(() => {
-    if (token) {
-      getUserAppointments();
+ useEffect(() => {
+  const fetchAppointments = async () => {
+    if (!token) return;
+    try {
+      const { data } = await axios.get(backendurl + '/api/user/appointments', {
+        headers: { token },
+      });
+      if (data.success) {
+        setAppointments(data.appointments.reverse());
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error(error.message);
     }
-  }, [token]);
+  };
+
+  fetchAppointments();
+}, [token, backendurl]); // ✅ all dependencies declared
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 md:px-12 py-12">
