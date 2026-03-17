@@ -7,7 +7,7 @@ export const AdminContext = createContext()
 
 const AdminContextProvider = (props) =>{
     const [atoken, setAtoken] = useState(localStorage.getItem("atoken")?localStorage.getItem("atoken"):'')
-    const backendurl = import.meta.env.VITE_BACKEND_URL
+    const backendurl = import.meta.env.BACKEND_URL
     const [doctors, setDoctors] = useState([])
     const getAllDoctors = async() =>{
         try {

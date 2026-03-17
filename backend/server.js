@@ -14,8 +14,29 @@ connectDB()
 connectCloudinary()
 
 //middlewares
+
+const allowedOrigins = [
+    "https://better-uptime-eight.vercel.app",
+    "http://localhost:3000",
+  ];
+
 app.use(express.json())
-app.use(cors())
+app.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        const isAllowed = allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+        if (!isAllowed) {
+          const msg = "The CORS policy for this site does not allow access from the specified Origin.";
+          return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+      },
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    })
+  );
 
 //api endpoints
 app.use('/api/admin',adminRouter)

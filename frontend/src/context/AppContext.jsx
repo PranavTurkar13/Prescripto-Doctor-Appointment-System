@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 export const AppContext = createContext();
 const currencySymbol = '$'
-const backendurl = import.meta.env.VITE_BACKEND_URL
+const backendurl = import.meta.env.BACKEND_URL
 
 const AppContextProvider = (props)=>{
     const [doctors, setDoctors] = useState([])
