@@ -39,7 +39,7 @@ const AppContextProvider = (props)=>{
             toast.error(error.message)
         }
     }
-    const value = { doctors,currencySymbol,token,setToken,backendurl,userData,setUserData,loadUserProfileData }
+    const value = { doctors,currencySymbol,token,setToken,backendurl,userData,setUserData,loadUserProfileData,getDoctorsData }
 
     useEffect(() => {
         getDoctorsData()

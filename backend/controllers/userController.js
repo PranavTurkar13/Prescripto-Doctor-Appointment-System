@@ -85,7 +85,7 @@ const updateProfile = async(req,res) =>{
         const imageFile = req.file
 
         if(!name || !phone || !dob || !gender){
-            res.json({success:false,message:"Data Missing"})
+            return res.json({success:false,message:"Data Missing"})
         } 
         await userModel.findByIdAndUpdate(userId,{name,phone,address:JSON.parse(address),dob,gender})
         
@@ -103,7 +103,7 @@ const updateProfile = async(req,res) =>{
     }
 }
 
-//API to Book Appointment for Doctor
+// API to Book Appointment for Doctor
 const bookAppointment = async(req,res) =>{
     try {
         const {userId,docId,slotDate,slotTime} = req.body
@@ -119,15 +119,18 @@ const bookAppointment = async(req,res) =>{
             if(slots_booked[slotDate].includes(slotTime)){
                 return res.json({success:false,message:"Slot not Available"})
             }else{
-                slots_booked[slotDate].put(slotTime)
+                slots_booked[slotDate].push(slotTime)
             }
         }else{
             slots_booked[slotDate] = []
-            slots_booked[slotDate].put(slotTime)
+            slots_booked[slotDate].push(slotTime)
         }
         
-        const userData = await new userModel.findById(userId).select('-password')
-        delete docData.slots_booked
+        const userData = await userModel.findById(userId).select('-password')
+
+        // ✅ FIX: Convert docData to plain object and remove slots_booked
+        const docDataPlain = docData.toObject()
+        delete docDataPlain.slots_booked
 
         const appointmentData = {
             userId,
@@ -135,20 +138,36 @@ const bookAppointment = async(req,res) =>{
             slotDate,
             slotTime,
             userData,
-            docData,
-            amount : docData.fees,
-            date:Date.now()
+            docData: docDataPlain,
+            amount: docDataPlain.fees,
+            date: Date.now()
         }
-        const newAppointment = new appointmentModel(appointmentData)
-        await appointmentModel.save()
 
-        //update
-        await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+        // ✅ FIX: Call .save() on the instance (newAppointment), not the class (appointmentModel)
+        const newAppointment = new appointmentModel(appointmentData)
+        await newAppointment.save()
+
+        // Update doctor's booked slots
+        await doctorModel.findByIdAndUpdate(docId, {slots_booked})
+
         res.json({success:true,message:"Appointment Booked"})
+
     } catch (error) {
         console.log(error)
         res.json({success:false,message:error.message})
     }
 }
 
-export {registerData,loginUser,getProfile,updateProfile,bookAppointment}
+const listUserAppointments = async(req,res) =>{
+    try {
+        const {userId} = req.body;
+        const appointments = await appointmentModel.find({userId})
+        
+        res.json({success:true,appointments})
+    } catch (error) {
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+}
+
+export {registerData,loginUser,getProfile,updateProfile,bookAppointment,listUserAppointments}

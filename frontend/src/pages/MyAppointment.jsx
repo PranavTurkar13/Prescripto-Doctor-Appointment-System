@@ -1,8 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const MyAppointment = () => {
-  const { doctors } = useContext(AppContext);
+  const { token, backendurl } = useContext(AppContext);
+  const [appointments, setAppointments] = useState([]);
+  const months = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+  const slotDateFormat = (slotDate) =>{
+    const dateArray = slotDate.split("_");
+    return dateArray[0]+" " + months[Number(dateArray[1])]+ " "+ dateArray[2]
+  }
+
+  const getUserAppointments = async () => {
+    try {
+     
+      const { data } = await axios.get(backendurl + '/api/user/appointments', { headers: { token } });
+      if (data.success) {
+        setAppointments(data.appointments.reverse());
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      getUserAppointments();
+    }
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 md:px-12 py-12">
@@ -15,38 +43,39 @@ const MyAppointment = () => {
       {/* Appointments List */}
       <div className="space-y-6">
 
-        {doctors.slice(0, 2).map((doc) => (
+        {appointments.map((item) => (
           <div
-            key={doc._id}
+            key={item._id}
             className="bg-white rounded-3xl shadow-md p-6 flex flex-col md:flex-row gap-6 items-center md:items-start"
           >
 
             {/* Doctor Image */}
             <img
-              src={doc.image}
-              alt={doc.name}
+              src={item.docData.image}
+              alt={item.docData.name}
               className="w-32 h-32 object-cover rounded-2xl shadow"
             />
 
             {/* Doctor Info */}
             <div className="flex-1 text-center md:text-left space-y-2">
               <h2 className="text-xl font-semibold text-gray-800">
-                {doc.name}
+                {item.docData.name}
               </h2>
 
               <p className="text-gray-600">
-                {doc.speciality}
+                {item.docData.speciality}
               </p>
 
               <div className="text-gray-500 text-sm">
                 <p className="font-medium text-gray-700">Address:</p>
-                <p>{doc.address?.line1}</p>
-                <p>{doc.address?.line2}</p>
+                <p>{item.docData.address?.line1}</p>
+                <p>{item.docData.address?.line2}</p>
               </div>
 
+              
               <p className="text-sm text-gray-700 mt-2">
                 <span className="font-medium">Date & Time:</span>{" "}
-                25 July, 2024 | 8:30 PM
+                {slotDateFormat(item.slotDate)} | {item.slotTime}
               </p>
             </div>
 
