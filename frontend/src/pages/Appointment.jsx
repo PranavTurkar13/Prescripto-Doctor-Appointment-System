@@ -198,7 +198,6 @@ const Appointment = () => {
                 </p>
               </div>
 
-              {/* ✅ FIX 1: Top "Book Appointment" button now scrolls down to the slots section */}
               <button
                 onClick={() =>
                   bookingSlotsRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -213,7 +212,6 @@ const Appointment = () => {
         </div>
 
         {/* ---------- Booking Slots ---------- */}
-        {/* ✅ FIX 1: Attached ref so the top button can scroll here */}
         <div
           ref={bookingSlotsRef}
           className="mt-12 max-w-6xl mx-auto bg-white p-8 rounded-3xl shadow-lg"
@@ -265,7 +263,6 @@ const Appointment = () => {
                 </button>
               ))
             ) : (
-              // ✅ FIX 5: Friendly message when all slots are booked for a day
               <p className="col-span-6 text-gray-500 text-sm text-center py-4">
                 No available slots for this day.
               </p>

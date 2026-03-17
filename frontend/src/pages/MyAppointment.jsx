@@ -3,8 +3,9 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+
 const MyAppointment = () => {
-  const { token, backendurl } = useContext(AppContext);
+  const { token, backendurl,getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
   const months = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
@@ -25,6 +26,21 @@ const MyAppointment = () => {
       toast.error(error.message);
     }
   };
+  const cancelAppointment = async(appointmentId) =>{
+    try {
+      const {data} = await axios.post(backendurl + '/api/user/cancel-appointment',{appointmentId},{headers:{token}})
+      if(data.success){
+        toast.success(data.message)
+        getUserAppointments()
+        getDoctorsData()
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+  }
 
   useEffect(() => {
     if (token) {
@@ -81,13 +97,14 @@ const MyAppointment = () => {
 
             {/* Buttons */}
             <div className="flex flex-col gap-3 w-full md:w-auto">
-              <button className="px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition">
+              {!item.cancelled && <button className="px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition">
                 Pay Here
-              </button>
+              </button>}
 
-              <button className="px-6 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 transition">
+              {!item.cancelled && <button onClick={()=>{cancelAppointment(item._id)}} className="px-6 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 transition">
                 Cancel Appointment
-              </button>
+              </button>}
+              {item.cancelled && <button className="sm:min-w-48 border-red-500 rounded py-2 text-red-500">Appointment Cancelled</button>}
             </div>
 
           </div>
