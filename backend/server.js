@@ -13,8 +13,6 @@ const port = process.env.PORT || 4000
 connectDB()
 connectCloudinary()
 
-// ✅ FIX: Added localhost:5173 and localhost:5174 (Vite default ports)
-// Also removed trailing slash from Vercel URL
 const allowedOrigins = [
     "https://prescripto-doctor-appointment-syste.vercel.app",
     "http://localhost:5173",

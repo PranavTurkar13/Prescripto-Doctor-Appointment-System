@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import {v2 as cloudinary} from 'cloudinary'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
+import Razorpay from 'razorpay'
 
 const registerData = async (req,res) =>{
     try{
@@ -143,7 +144,6 @@ const bookAppointment = async(req,res) =>{
             date: Date.now()
         }
 
-        // ✅ FIX: Call .save() on the instance (newAppointment), not the class (appointmentModel)
         const newAppointment = new appointmentModel(appointmentData)
         await newAppointment.save()
 
@@ -190,4 +190,43 @@ const cancelAppointment = async(req,res) =>{
         res.json({success:false,message:error.message})
     }
 }
-export {registerData,loginUser,getProfile,updateProfile,bookAppointment,listUserAppointments,cancelAppointment}
+
+const razorpayInstance = new Razorpay({
+    key_id:process.env.TEST_KEY_ID,
+    key_secret:process.env.TEST_KEY_SECRET,
+})
+const razorpayPayment = async(req,res) =>{
+    try {
+        const {appointmentId} = req.body
+        const appointmentData = await appointmentModel.findById(appointmentId)
+        if(!appointmentId || appointmentData.cancelled){
+            return res.json({success:false,message:"Appointment Cancelled or not found"})
+        }
+        const options = {
+            amount : appointmentData.amount * 100,
+            currency:process.env.CURRENCY || 'INR',
+            receipt:appointmentId,
+        }
+        
+        const order = await razorpayInstance.orders.create(options)
+        res.json({success:true,order})
+    } catch (error) {
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+    
+}
+
+const verifyPayment = async(req,res)=>{
+    try {
+        const {razorpay_payment_id} = req.body
+        const orderInfo = await razorpayInstance.order.fetch(razorpay_payment_id)
+        if(orderInfo.status === 'paid'){
+            
+        } 
+    } catch (error) {
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+}
+export {registerData,loginUser,getProfile,updateProfile,bookAppointment,listUserAppointments,cancelAppointment,razorpayPayment}
