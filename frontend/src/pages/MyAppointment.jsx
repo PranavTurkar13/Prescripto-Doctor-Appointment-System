@@ -42,20 +42,35 @@ const MyAppointment = () => {
     }
   }
 
-  const initPay = (order) =>{
-    const options = {
-      key:import.meta.env.VITE_TEST_KEY_ID,
-      amount : order.amount,
-      currency : order.currency,
-      name : 'Appointment Payment',
-      description : 'Appointment Payment',
-      receipt : order.receipt,
-      handler : async(response) =>{
-        console.log(response)
+  const initPay = (order) => {
+      const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'Appointment Payment',
+          description: 'Appointment Payment',
+          order_id: order.id,
+          handler: async (response) => {
+              console.log(response)
+              try {
+                  const { data } = await axios.post(
+                      backendurl + '/api/user/verify-payment',
+                      response,
+                      { headers: { token } }
+                  )
+                  if (data.success) {
+                      toast.success(data.message)
+                      getUserAppointments() 
+                  } else {
+                      toast.error(data.message)
+                  }
+              } catch (error) {
+                  toast.error(error.message)
+              }
+          }
       }
-    }
-    const rzp = new window.Razorpay(options)
-    rzp.open()
+      const rzp = new window.Razorpay(options)
+      rzp.open()
   }
 
   const appointmentRazorpay = async(appointmentId) =>{
@@ -88,7 +103,7 @@ const MyAppointment = () => {
   };
 
   fetchAppointments();
-}, [token, backendurl]); // ✅ all dependencies declared
+}, [token, backendurl]); 
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 md:px-12 py-12">
@@ -137,16 +152,34 @@ const MyAppointment = () => {
               </p>
             </div>
 
-            {/* Buttons */}
-            <div onClick={()=>appointmentRazorpay(item._id)} className="flex flex-col gap-3 w-full md:w-auto">
-              {!item.cancelled && <button className="px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition">
-                Pay Here
-              </button>}
-
-              {!item.cancelled && <button onClick={()=>{cancelAppointment(item._id)}} className="px-6 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 transition">
-                Cancel Appointment
-              </button>}
-              {item.cancelled && <button className="sm:min-w-48 border-red-500 rounded py-2 text-red-500">Appointment Cancelled</button>}
+            {/* Buttons */}     
+            <div className="flex flex-col gap-3 w-full md:w-auto">
+              {!item.cancelled && item.Payment && (
+                <button className="px-6 py-2 border border-green-500 text-green-500 rounded-xl cursor-not-allowed">
+                  Paid ✓
+                </button>
+              )}
+              {!item.cancelled && !item.Payment && (
+                <button
+                  onClick={() => appointmentRazorpay(item._id)}
+                  className="px-6 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition"
+                >
+                  Pay Here
+                </button>
+              )}
+              {!item.cancelled && (
+                <button
+                  onClick={() => cancelAppointment(item._id)}
+                  className="px-6 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 transition"
+                >
+                  Cancel Appointment
+                </button>
+              )}
+              {item.cancelled && (
+                <button className="sm:min-w-48 border-red-500 rounded py-2 text-red-500">
+                  Appointment Cancelled
+                </button>
+              )}
             </div>
 
           </div>

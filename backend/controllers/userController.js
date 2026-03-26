@@ -192,8 +192,8 @@ const cancelAppointment = async(req,res) =>{
 }
 
 const razorpayInstance = new Razorpay({
-    key_id:process.env.TEST_KEY_ID,
-    key_secret:process.env.TEST_KEY_SECRET,
+    key_id:process.env.RAZORPAY_KEY_ID,
+    key_secret:process.env.RAZORPAY_KEY_SECRET,
 })
 const razorpayPayment = async(req,res) =>{
     try {
@@ -217,16 +217,18 @@ const razorpayPayment = async(req,res) =>{
     
 }
 
-const verifyPayment = async(req,res)=>{
+const verifyPayment = async (req, res) => {
     try {
-        const {razorpay_payment_id} = req.body
-        const orderInfo = await razorpayInstance.order.fetch(razorpay_payment_id)
-        if(orderInfo.status === 'paid'){
-            
-        } 
+        const { razorpay_order_id } = req.body
+        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+        console.log(orderInfo) 
+
+        await appointmentModel.findByIdAndUpdate(orderInfo.receipt, { Payment: true })
+        return res.json({ success: true, message: "Payment Successful" })
+
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
-export {registerData,loginUser,getProfile,updateProfile,bookAppointment,listUserAppointments,cancelAppointment,razorpayPayment}
+export {registerData,loginUser,getProfile,updateProfile,bookAppointment,listUserAppointments,cancelAppointment,razorpayPayment,verifyPayment}
