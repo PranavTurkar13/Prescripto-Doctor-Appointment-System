@@ -222,10 +222,9 @@ const verifyPayment = async (req, res) => {
         const { razorpay_order_id } = req.body
         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
         console.log(orderInfo) 
-
+        
         await appointmentModel.findByIdAndUpdate(orderInfo.receipt, { Payment: true })
         return res.json({ success: true, message: "Payment Successful" })
-
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
