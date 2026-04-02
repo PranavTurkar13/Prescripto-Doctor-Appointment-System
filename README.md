@@ -10,7 +10,7 @@ A full-stack doctor appointment booking platform where patients can **browse doc
 
 | | Link |
 |---|---|
-| 🌐 **Patient Frontend** | [prescripto.vercel.app](https://your-frontend.vercel.app) |
+| 🌐 **Patient Frontend** | [prescripto.vercel.app](https://prescripto-doctor-appointment-syste.vercel.app/) |
 | ⚙️ **Backend API** | [prescripto-backend-28iu.onrender.com](https://prescripto-backend-28iu.onrender.com) |
 
 ---
